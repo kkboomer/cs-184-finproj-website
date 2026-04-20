@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pathtracing extension for iridescent, wavelength-dependent rendering — CS184 Proposal</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--bg: #fafbfc;
+			--surface: #ffffff;
+			--text: #1a1d26;
+			--text-muted: #5c6370;
+			--accent: #0057a8;
+			--accent-hover: #8e018e;
+			--border: #e8eaef;
+			--gradient: linear-gradient(120deg, #6366f1 0%, #8b5cf6 35%, #06b6d4 70%, #10b981 100%);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Inter", system-ui, sans-serif;
+			font-size: 1.0625rem;
+			line-height: 1.65;
+			color: var(--text);
+			background: var(--bg);
+		}
+
+		.page {
+			max-width: 46rem;
+			margin: 0 auto;
+			padding: 2.5rem 1.5rem 4rem;
+		}
+
+		.back {
+			font-size: 0.875rem;
+			margin-bottom: 2rem;
+		}
+
+		.back a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+
+		.back a:hover {
+			color: var(--accent-hover);
+			text-decoration: underline;
+		}
+
+		header.doc-header {
+			margin-bottom: 2.75rem;
+			padding-bottom: 2rem;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.eyebrow {
+			font-size: 0.75rem;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--text-muted);
+			margin: 0 0 0.75rem;
+		}
+
+		h1 {
+			font-size: clamp(1.5rem, 4vw, 2rem);
+			font-weight: 700;
+			line-height: 1.25;
+			margin: 0 0 1.25rem;
+			background: var(--gradient);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+		}
+
+		.summary {
+			font-size: 1.05rem;
+			color: var(--text);
+			margin: 0 0 1.75rem;
+		}
+
+		.team-label {
+			font-size: 0.8125rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: var(--text-muted);
+			margin: 0 0 0.5rem;
+		}
+
+		.team-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem 1.25rem;
+		}
+
+		.team-list li {
+			padding: 0.35rem 0.85rem;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 999px;
+			font-size: 0.9375rem;
+		}
+
+		section {
+			margin-bottom: 2.75rem;
+		}
+
+		h2 {
+			font-size: 1.25rem;
+			font-weight: 700;
+			margin: 0 0 1rem;
+			padding-top: 0.25rem;
+			border-left: 4px solid transparent;
+			border-image: var(--gradient) 1;
+			padding-left: 0.85rem;
+			margin-left: -0.85rem;
+		}
+
+		h3 {
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 1.5rem 0 0.5rem;
+			color: var(--text);
+		}
+
+		h3:first-of-type {
+			margin-top: 0;
+		}
+
+		p {
+			margin: 0 0 1rem;
+			color: var(--text);
+		}
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+
+		ul.detail-list {
+			margin: 0 0 1rem;
+			padding-left: 1.25rem;
+		}
+
+		ul.detail-list li {
+			margin-bottom: 0.5rem;
+		}
+
+		ul.detail-list li:last-child {
+			margin-bottom: 0;
+		}
+
+		.deliverables-grid {
+			display: grid;
+			gap: 1.25rem;
+			margin-top: 1.25rem;
+		}
+
+		@media (min-width: 640px) {
+			.deliverables-grid {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+
+		.card {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+			padding: 1.25rem 1.35rem;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+		}
+
+		.card h3 {
+			margin-top: 0;
+			font-size: 0.9375rem;
+			color: var(--accent);
+		}
+
+		.schedule {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
+		.week {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+			padding: 1.15rem 1.35rem;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.week::before {
+			content: "";
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 4px;
+			background: var(--gradient);
+		}
+
+		.week-header {
+			font-weight: 600;
+			font-size: 0.95rem;
+			margin-bottom: 0.65rem;
+			color: var(--text);
+		}
+
+		.week-dates {
+			font-weight: 500;
+			color: var(--text-muted);
+			font-size: 0.875rem;
+		}
+
+		.week ul {
+			margin: 0;
+			padding-left: 1.2rem;
+		}
+
+		.week li {
+			margin-bottom: 0.35rem;
+		}
+
+		.week li:last-child {
+			margin-bottom: 0;
+		}
+
+		.resources-block {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+			padding: 1.35rem 1.5rem;
+		}
+
+		.resources-block h3 {
+			margin-top: 0;
+		}
+
+		.resources-block a {
+			color: var(--accent);
+			word-break: break-word;
+		}
+
+		.resources-block a:hover {
+			color: var(--accent-hover);
+		}
+
+		.ref-list {
+			list-style: none;
+			padding: 0;
+			margin: 0 0 1.25rem;
+		}
+
+		.ref-list li {
+			padding: 0.5rem 0;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.ref-list li:last-child {
+			border-bottom: none;
+			padding-bottom: 0;
+		}
+
+		.note {
+			font-size: 0.9rem;
+			color: var(--text-muted);
+			font-style: italic;
+			margin-top: 1rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="page">
+		<p class="back"><a href="../index.html">← CS184 project site</a></p>
+
+		<header class="doc-header">
+			<p class="eyebrow">CS184 / 284A · Final project Checkpoint</p>
+			<h1>Pathtracing extension to support iridescent, wavelength-dependent path tracing</h1>
+			<p class="summary">This project aims to extend a standard RGB path tracer to support wavelength-dependent rendering, enabling the accurate simulation of iridescent phenomena like thin-film interference seen in soap bubbles and CDs. By modeling light as a spectrum of wavelengths rather than three simple color channels, we will implement physically-based reflectance models to capture the complex constructive and destructive interference that creates shifting “rainbow” color effects based on the viewing angle. Using our existing path tracing framework from Homework 3 as a foundation, we will build a modified pipeline that integrates spectral representation and specialized BRDFs to render iridescent surfaces in diverse lighting environments.</p>
+			<p class="team-label">Team members</p>
+			<ul class="team-list">
+				<li>Crystal LaMar</li>
+				<li>Kellen Galban</li>
+				<li>Isaac Jones</li>
+				<li>Sofia Valadez</li>
+			</ul>
+		</header>
+
+		<section id="problem">
+			<h2>ColorVector</h2>
+            <p>
+                A fork of the <code>Vector3D</code> class, this vector not only functions like a 
+            </p>
+		</section>
+
+		<section id="goals">
+			<h2>ThinFilmBSDF</h2>
+
+            <p>
+
+            </p>
+
+			<div align="middle">
+				<table style="width:100%">
+				  <tr align="center">
+					<td>
+					  <img src="images/bubble.png" align="middle" width="400px"/>
+					  <figcaption>Bubbles are a prime example of irredecent surfaces</figcaption>
+					</td>
+					<td>
+					  <img src="images/glasses.png" align="middle" width="400px"/>
+					  <figcaption>Glasses with irredecent coating, note the environment map replicating the reflection</figcaption>
+					</td>
+				  </tr>
+				</table>
+			  </div>
+			  <br>
+			<h3>Measuring quality and performance</h3>
+			<p>We will track overall render time to see whether the rendering pipeline remains reasonably efficient.</p>
+
+			<h3>Questions we plan to answer</h3>
+			<ul class="detail-list">
+				<li>How do these iridescent surfaces affect the bouncing of rays?</li>
+			</ul>
+
+			<div class="deliverables-grid">
+				<div class="card">
+					<h3>(1) What we plan to deliver</h3>
+					<p>Our baseline goal is a rendering pipeline that accurately models how iridescent objects appear in different environments, including indoor, outdoor, dark, and bright scenes—what we must accomplish for a successful project and the grade we expect, with room for unexpected problems.</p>
+				</div>
+				<div class="card">
+					<h3>(2) What we hope to deliver</h3>
+					<p>If we finish ahead of schedule, we will look for ways to improve performance, since we mainly prioritize a working implementation first. We would like to optimize enough for real-time rendering, or alternatively to render dozens of bubbles quickly or possibly an animated scene in at most a few hours.</p>
+				</div>
+			</div>
+		</section>
+
+		<section id="schedule">
+			<h2>Renders</h2>
+			<p>Here are some of our renders, the dragon being our best/ </p>
+
+			<div align="middle">
+				<table style="width:100%">
+				  <tr align="center">
+					<td>
+					  <img src="pic/dragon_iridescent.png" align="middle" width="400px"/>
+					  <figcaption>Bubbles are a prime example of irredecent surfaces</figcaption>
+					</td>
+					<td>
+					  <img src="images/glasses.png" align="middle" width="400px"/>
+					  <figcaption>Glasses with irredecent coating, note the environment map replicating the reflection</figcaption>
+					</td>
+				  </tr>
+				</table>
+			  </div>
+		</section>
+	</div>
+</body>
+</html>
