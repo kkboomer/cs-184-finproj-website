@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Iridescent Path Tracer — Milestone Report</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--bg: #f8fafc;
+			--surface: #ffffff;
+			--text: #1a1d26;
+			--muted: #5c6370;
+			--accent: #0057a8;
+			--accent-hover: #8e018e;
+			--border: #e7ebf1;
+			--gradient: linear-gradient(120deg, #6366f1 0%, #8b5cf6 35%, #06b6d4 70%, #10b981 100%);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Inter", system-ui, sans-serif;
+			font-size: 1.03rem;
+			line-height: 1.62;
+			color: var(--text);
+			background: var(--bg);
+		}
+
+		.page {
+			max-width: 44rem;
+			margin: 0 auto;
+			padding: 2.3rem 1.3rem 3rem;
+		}
+
+		.back {
+			font-size: 0.88rem;
+			margin: 0 0 1.8rem;
+		}
+
+		.back a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+
+		.back a:hover {
+			color: var(--accent-hover);
+			text-decoration: underline;
+		}
+
+		header {
+			margin-bottom: 2rem;
+			padding-bottom: 1.5rem;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.eyebrow {
+			margin: 0 0 0.65rem;
+			font-size: 0.75rem;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+
+		h1 {
+			margin: 0 0 0.9rem;
+			font-size: clamp(1.45rem, 4vw, 1.9rem);
+			line-height: 1.25;
+			font-weight: 700;
+			background: var(--gradient);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+		}
+
+		.group {
+			margin: 0;
+			color: var(--muted);
+		}
+
+		section {
+			margin-bottom: 2rem;
+		}
+
+		h2 {
+			margin: 0 0 0.8rem;
+			font-size: 1.18rem;
+			font-weight: 700;
+			padding-left: 0.72rem;
+			margin-left: -0.72rem;
+			border-left: 4px solid transparent;
+			border-image: var(--gradient) 1;
+		}
+
+		h3 {
+			margin: 1.2rem 0 0.45rem;
+			font-size: 1rem;
+			font-weight: 600;
+		}
+
+		p {
+			margin: 0 0 0.9rem;
+		}
+
+		.card {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+			padding: 1rem 1.15rem;
+			margin-bottom: 0.9rem;
+		}
+
+		.render-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 0.85rem;
+			margin-top: 0.9rem;
+		}
+
+		@media (min-width: 700px) {
+			.render-grid {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+
+		.render-item {
+			margin: 0;
+			background: #f4f6fa;
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			overflow: hidden;
+		}
+
+		.render-item img {
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+
+		.render-item figcaption {
+			padding: 0.5rem 0.7rem;
+			font-size: 0.86rem;
+			color: var(--muted);
+			border-top: 1px solid var(--border);
+		}
+
+		ul {
+			margin: 0.25rem 0 0;
+			padding-left: 1.2rem;
+		}
+
+		li {
+			margin-bottom: 0.45rem;
+		}
+
+		a {
+			color: var(--accent);
+			word-break: break-word;
+		}
+
+		a:hover {
+			color: var(--accent-hover);
+		}
+	</style>
+</head>
+<body>
+	<div class="page">
+		<p class="back"><a href="../index.html">← CS184 project site</a></p>
+
+		<header>
+			<p class="eyebrow">CS184 · 3.1A Milestone Report</p>
+			<h1>Iridescent Path Tracer Final Project</h1>
+			<p class="group">Group: Crystal LaMar, Kellen Galban, Isaac Jones, Sofia Valadez</p>
+		</header>
+
+		<section>
+			<h2>Links</h2>
+			<div class="card">
+				<p><strong>Website:</strong> <a href="https://kkboomer.github.io/cs-184-finproj-website/">CS184 Final Project Webpage</a></p>
+				<p><strong>Slides:</strong> <a href="https://docs.google.com/presentation/d/1cuVrajBCJHdcgrVPxe9suv_gfY4wcOE3qLjKlIKQgi8/edit?usp=sharing">Milestone presentation deck</a></p>
+				<p><strong>Video:</strong> <a href="https://youtu.be/Jba5EJzPGOw">Milestone progress video</a></p>
+			</div>
+		</section>
+
+		<section>
+			<h2>What We Accomplished</h2>
+
+			<div class="card">
+				<h3>Creating VectorClass</h3>
+				<p>Because the RGB path tracer from Homework 3 could not simulate thin-film interference, we created a <strong>Color Vector</strong> class to replace <code>Vector3D</code>. This new class stores a spectral representation with 40 discrete wavelength samples from 400nm to 800nm.</p>
+				<p>We refactored functions in <code>pathtracer.cpp</code> so color data is carried as a <code>ColorVector</code> through ray bounces, and only collapsed to RGB at <code>raytrace_pixel</code>.</p>
+			</div>
+
+			<div class="card">
+				<h3>Bouncing Color Vector</h3>
+				<p>We modified raytracing algorithms so the newly implemented <code>ColorVector</code> values are used during bounce computations instead of RGB channel math.</p>
+			</div>
+
+			<div class="card">
+				<h3>ThinFilm BSDF</h3>
+				<p>To simulate iridescent patterns from light reflecting through thin transparent layers, we created a new <strong>ThinFilm BSDF</strong>. Key functions include <code>calculate_phase_shift()</code>, which computes forward shift as rays enter the film, and <code>evaluate_interference()</code>, which accounts for per-wavelength behavior in accordance with Snell's Law.</p>
+			</div>
+		</section>
+
+		<section>
+			<h2>Preliminary Results</h2>
+			<div class="card">
+				<h3>Current renders</h3>
+				<p>Our renderer now produces initial iridescence-like effects and validates that the spectral pipeline is functioning end-to-end. The current visuals show that wavelength-aware bounces and thin-film calculations are influencing final color output.</p>
+				<div class="render-grid">
+					<figure class="render-item">
+						<img src="images/bubble_bunnyno.png" alt="Bunny bubble render without iridescence">
+						<figcaption>Bubble Bunny (no iridescence baseline)</figcaption>
+					</figure>
+					<figure class="render-item">
+						<img src="images/bubble_bunny.png" alt="Bunny bubble render with iridescent effect">
+						<figcaption>Bubble Bunny (with iridescent effect)</figcaption>
+					</figure>
+					<figure class="render-item">
+						<img src="images/bubble_room.png" alt="Bubble render in room scene">
+						<figcaption>Bubble Room scene</figcaption>
+					</figure>
+					<figure class="render-item">
+						<img src="images/dragon_iridescent2.png" alt="Dragon render with iridescent material">
+						<figcaption>Iridescent Dragon (variant 2)</figcaption>
+					</figure>
+					<figure class="render-item">
+						<img src="images/dragon_iridescent_rate.png" alt="Dragon iridescent rate comparison render">
+						<figcaption>Iridescent Dragon rate test</figcaption>
+					</figure>
+					<figure class="render-item">
+						<img src="images/CBdragon_bubble_final.png" alt="Final Cornell box dragon bubble render">
+						<figcaption>Final CB Dragon Bubble render</figcaption>
+					</figure>
+				</div>
+			</div>
+		</section>
+
+		<section>
+			<h2>Progress vs. Plan and Next Steps</h2>
+			<div class="card">
+				<p>Relative to our original plan, we made strong progress on core technical infrastructure (spectral color representation, bounce updates, and BSDF implementation). The current bottleneck is realism of translucency and scene quality rather than missing core features.</p>
+			</div>
+
+			<div class="card">
+				<h3>Next Steps</h3>
+				<ul>
+					<li>Update the pipeline to support transparency better.</li>
+					<li>Fix current surfaces that look more metallic than thin and translucent.</li>
+					<li>Develop better <code>.dae</code> files and scene files suited to current testing.</li>
+					<li>Create more complex scenes, ideally including animations of bubbles colliding and bursting.</li>
+				</ul>
+			</div>
+		</section>
+	</div>
+</body>
+</html>

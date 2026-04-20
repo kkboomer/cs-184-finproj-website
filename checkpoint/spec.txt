@@ -1,0 +1,2 @@
+3.1A Milestone Report Webpage (CS184)
+Create a short webpage for your milestone report. This should be about 1 page long if printed. Please include your project name at the top of your milestone report. You should briefly summarize what you have accomplished, preliminary results, reflect on progress relative to your plan, and update your work plan as appropriate. You must submit this milestone deliverable (and the final deliverable) on a persistent website that you can choose to keep up after class if you wish to present this work in your portfolio.

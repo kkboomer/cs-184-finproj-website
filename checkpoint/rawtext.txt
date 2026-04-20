@@ -1,0 +1,23 @@
+Iridescent Path Tracer Final Project
+Group: Crystal LaMar, Kellen Galban, Isaac Jones, Sofia Valadez
+Links
+Slides: https://docs.google.com/presentation/d/1cuVrajBCJHdcgrVPxe9suv_gfY4wcOE3qLjKlIKQgi8/edit?usp=sharing 
+
+Video: https://youtu.be/Jba5EJzPGOw 
+Creating VectorClass
+As the RGB path tracer implemented in HW3 could not simulate thin-film interference because iridescence depends on how individual wavelengths interact, we created a Color Vector class to replace Vector3D.
+The Color Vector class allows for a spectral representation of light that stores 40 discrete wavelength samples from 400nm to 800nm. We refactored every function in pathracer.cpp to carry ColorVector through all bounces and collapsing to RGB only at raytrace_pixel.
+Bouncing Color Vector
+The next step was modifying the raytracing algorithms so that the newly implemented ColorVectors are used in bounces instead. 
+BSDF
+In order to simulate iridescent patterns from light reflecting off thin, transparent layers, we created a new ThinFilm BSDF to allow for thin transparent layers to reflect light. Some of the major functions include calculate_phase_shift() to find out how much the ray gets shifted forward upon entering the film, and a new evaluate_interference() function that accounts for each ray’s wavelength in accordance with Snell’s Law.l
+
+Current Renders
+
+Next Steps
+Update pipeline to support transparency better
+Currently, surfaces look more like metal rather than having a thin translucent layer
+Develop better .dae files
+Scene files better suited for our current testing stages.
+Create More Complex Scenes
+Ideally, animations of bubbles colliding and bursting.
