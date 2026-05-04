@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Iridescent Pathtracer — CS184 Final Report</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--bg: #f8fafc;
+			--surface: #ffffff;
+			--text: #1a1d26;
+			--muted: #5c6370;
+			--accent: #0057a8;
+			--accent-hover: #8e018e;
+			--border: #e7ebf1;
+			--gradient: linear-gradient(120deg, #6366f1 0%, #8b5cf6 35%, #06b6d4 70%, #10b981 100%);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			scrollbar-gutter: stable;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Inter", system-ui, sans-serif;
+			font-size: 1.03rem;
+			line-height: 1.62;
+			color: var(--text);
+			background: var(--bg);
+			overflow-x: clip;
+		}
+
+		.page {
+			max-width: 48rem;
+			margin: 0 auto;
+			padding: 2.3rem 1.25rem 4rem;
+			text-align: center;
+		}
+
+		.back {
+			font-size: 0.88rem;
+			margin: 0 0 1.5rem;
+			text-align: center;
+		}
+
+		.back a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+
+		.back a:hover {
+			color: var(--accent-hover);
+			text-decoration: underline;
+		}
+
+		header.doc-header {
+			margin-bottom: 2rem;
+			padding-bottom: 1.75rem;
+			border-bottom: 1px solid var(--border);
+			text-align: center;
+		}
+
+		.eyebrow {
+			margin: 0 0 0.65rem;
+			font-size: 0.75rem;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+
+		h1 {
+			margin: 0 0 1rem;
+			font-size: clamp(1.5rem, 4.2vw, 2rem);
+			line-height: 1.22;
+			font-weight: 700;
+			background: var(--gradient);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+			text-align: center;
+		}
+
+		.team-label {
+			font-size: 0.75rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: var(--muted);
+			margin: 0 0 0.5rem;
+		}
+
+		.team-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.45rem 0.65rem;
+			justify-content: center;
+		}
+
+		.team-list li {
+			padding: 0.35rem 0.85rem;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 999px;
+			font-size: 0.9rem;
+		}
+
+		.toc {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+			padding: 1rem 1.2rem 1.1rem;
+			margin-bottom: 2rem;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+			text-align: center;
+		}
+
+		.toc h2 {
+			margin: 0 0 0.65rem;
+			font-size: 0.85rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: var(--muted);
+			border: none;
+			padding: 0;
+			text-align: center;
+		}
+
+		.toc ul {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 0.35rem;
+		}
+
+		.toc li {
+			margin-bottom: 0;
+		}
+
+		.toc a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+
+		.toc a:hover {
+			color: var(--accent-hover);
+			text-decoration: underline;
+		}
+
+		section {
+			margin-bottom: 2.35rem;
+			text-align: center;
+		}
+
+		section > h2 {
+			margin: 0 auto 0.9rem;
+			font-size: 1.2rem;
+			font-weight: 700;
+			padding-left: 0;
+			border-left: none;
+			border-bottom: 4px solid transparent;
+			border-image: var(--gradient) 1;
+			padding-bottom: 0.45rem;
+			text-align: center;
+			max-width: 100%;
+		}
+
+		h3 {
+			margin: 1.15rem 0 0.45rem;
+			font-size: 1rem;
+			font-weight: 600;
+			text-align: center;
+		}
+
+		h3:first-child {
+			margin-top: 0;
+		}
+
+		p {
+			margin: 0 0 0.85rem;
+			text-align: center;
+		}
+
+		/* Lists: centered block, left-aligned lines for readability */
+		ul:not(.team-list):not(.toc ul):not(.contrib-list),
+		ol {
+			margin: 0 auto 0.85rem;
+			padding-left: 1.25rem;
+			max-width: 40rem;
+			text-align: left;
+		}
+
+		li {
+			margin-bottom: 0.4rem;
+		}
+
+		code {
+			font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+			font-size: 0.88em;
+			background: #eef2f7;
+			padding: 0.12em 0.35em;
+			border-radius: 4px;
+		}
+
+		.card {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 12px;
+			padding: 1rem 1.15rem;
+			margin-bottom: 0.85rem;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+			text-align: center;
+		}
+
+		.card h3 {
+			margin-top: 0;
+			color: var(--accent);
+			font-size: 0.98rem;
+			text-align: center;
+		}
+
+		.timeline-note {
+			font-size: 0.88rem;
+			color: var(--muted);
+			border-left: none;
+			padding-left: 0;
+			margin: 0.5rem auto 1rem;
+			max-width: 44rem;
+			text-align: center;
+			padding-top: 0.65rem;
+			border-top: 3px solid #c7d2fe;
+		}
+
+		.video-wrap {
+			position: relative;
+			padding-bottom: 56.25%;
+			height: 0;
+			overflow: hidden;
+			border-radius: 12px;
+			border: 1px solid var(--border);
+			background: #0f172a;
+			margin: 0.75rem 0 0;
+		}
+
+		.video-wrap iframe {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			border: 0;
+		}
+
+		.gif-placeholder {
+			margin-top: 1rem;
+			padding: 1rem;
+			background: #f1f5f9;
+			border: 1px dashed var(--border);
+			border-radius: 10px;
+			font-size: 0.9rem;
+			color: var(--muted);
+			text-align: center;
+		}
+
+		/* Full-bleed gallery: break out of narrow .page without 100vw scrollbar shift */
+		.results-bleed {
+			width: 100vi;
+			max-width: 100vi;
+			min-width: 0;
+			margin-left: calc(50% - 50vi);
+			margin-right: calc(50% - 50vi);
+			padding-left: max(1rem, env(safe-area-inset-left));
+			padding-right: max(1rem, env(safe-area-inset-right));
+			box-sizing: border-box;
+			text-align: center;
+		}
+
+		.results-inner {
+			max-width: min(96vi, 112rem);
+			margin-left: auto;
+			margin-right: auto;
+			width: 100%;
+			min-width: 0;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.results-inner > h2 {
+			margin: 0 auto 0.9rem;
+			font-size: 1.2rem;
+			font-weight: 700;
+			padding-left: 0;
+			border-left: none;
+			border-bottom: 4px solid transparent;
+			border-image: var(--gradient) 1;
+			padding-bottom: 0.45rem;
+			text-align: center;
+			align-self: center;
+			width: 100%;
+			max-width: 100%;
+			box-sizing: border-box;
+		}
+
+		/* Reinforce centered copy inside Results (avoid inherit gaps / UA margins) */
+		#results,
+		#results .card,
+		#results p,
+		#results h3 {
+			text-align: center;
+		}
+
+		#results .video-wrap {
+			margin-left: auto;
+			margin-right: auto;
+			max-width: min(56rem, 100%);
+		}
+
+		#results figure {
+			margin: 0;
+			text-align: center;
+		}
+
+		#results .render-grid {
+			justify-items: center;
+		}
+
+		#results .render-item {
+			width: min(30vw, 100%);
+			box-sizing: border-box;
+		}
+
+		.render-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 1.35rem;
+			margin-top: 1rem;
+		}
+
+		.render-item {
+			margin: 0;
+			background: #f4f6fa;
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			overflow: hidden;
+		}
+
+		.render-item-link {
+			display: block;
+			line-height: 0;
+			background: #e8ecf2;
+		}
+
+		.render-item-link:hover img {
+			opacity: 0.98;
+		}
+
+		.render-item-link:focus-visible {
+			outline: 3px solid var(--accent);
+			outline-offset: 2px;
+		}
+
+		.render-item-link img {
+			display: block;
+			width: 100%;
+			height: auto;
+			max-width: 100%;
+			vertical-align: middle;
+			cursor: zoom-in;
+		}
+
+		.render-item figcaption {
+			padding: 0.55rem 0.85rem;
+			font-size: 0.88rem;
+			color: var(--muted);
+			border-top: 1px solid var(--border);
+			line-height: 1.45;
+			text-align: center;
+		}
+
+		.render-hint {
+			font-size: 0.86rem;
+			color: var(--muted);
+			margin: 0 0 0.75rem;
+			text-align: center;
+		}
+
+		.ref-list {
+			list-style: none;
+			padding: 0;
+			margin: 0 auto;
+			max-width: 42rem;
+			text-align: left;
+		}
+
+		.ref-list li {
+			padding: 0.55rem 0;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.ref-list li:last-child {
+			border-bottom: none;
+		}
+
+		.contrib-list {
+			list-style: none;
+			padding: 0;
+			margin: 0 auto;
+			max-width: 44rem;
+			text-align: center;
+		}
+
+		.contrib-list li {
+			padding: 0.65rem 0;
+			border-bottom: 1px solid var(--border);
+			margin: 0;
+			text-align: center;
+		}
+
+		.contrib-list li:last-child {
+			border-bottom: none;
+		}
+
+		.contrib-list strong {
+			color: var(--text);
+		}
+
+		a {
+			color: var(--accent);
+			word-break: break-word;
+		}
+
+		a:hover {
+			color: var(--accent-hover);
+		}
+	</style>
+</head>
+<body>
+	<div class="page">
+		<p class="back"><a href="../index.html">← CS184 project site</a></p>
+
+		<header class="doc-header">
+			<p class="eyebrow">CS184 / 284A · 5.2A Final report</p>
+			<h1>Iridescent Pathtracer</h1>
+			<p class="team-label">Group</p>
+			<ul class="team-list">
+				<li>Crystal LaMar</li>
+				<li>Kellen Galban</li>
+				<li>Isaac Jones</li>
+				<li>Sofia Valadez</li>
+			</ul>
+		</header>
+
+		<nav class="toc" aria-label="Page contents">
+			<h2>Contents</h2>
+			<ul>
+				<li><a href="#links">Links &amp; media</a></li>
+				<li><a href="#abstract">Abstract</a></li>
+				<li><a href="#approach">Technical approach</a></li>
+				<li><a href="#evolution">Pipeline &amp; design evolution</a></li>
+				<li><a href="#issues">Issues encountered</a></li>
+				<li><a href="#lessons">Lessons learned</a></li>
+				<li><a href="#results">Results</a></li>
+				<li><a href="#references">References</a></li>
+				<li><a href="#contributions">Contributions</a></li>
+			</ul>
+		</nav>
+
+		<section id="links">
+			<h2>Links &amp; media</h2>
+			<div class="card">
+				<p><strong>Course site hub:</strong> <a href="https://kkboomer.github.io/cs-184-finproj-website/">CS184 Final Project Webpage</a> (this repository’s GitHub Pages).</p>
+				<p><strong>Milestone deck:</strong> <a href="https://docs.google.com/presentation/d/1cuVrajBCJHdcgrVPxe9suv_gfY4wcOE3qLjKlIKQgi8/edit?usp=sharing">Presentation slides</a>.</p>
+				<p><strong>Progress / showcase video:</strong> <a href="https://youtu.be/Jba5EJzPGOw">YouTube — milestone progress video</a> (embedded below under Results as required course media).</p>
+			</div>
+		</section>
+
+		<section id="abstract">
+			<h2>Abstract</h2>
+			<div class="card">
+				<p>The goal of this project is to model thin-film iridescent appearance in a Monte Carlo path tracer built on Homework&nbsp;3. Iridescence arises from wavelength-dependent interference in a thin transparent film, which plain RGB tracing cannot reproduce faithfully. We refactored the renderer so rays carry a discrete spectral representation through multiple bounces, implemented a dedicated thin-film BSDF with Airy-style interference and Snell-aware phase behavior, and converted to display RGB only at the end of <code>raytrace_pixel</code>, with CIE/XYZ-aware color handling so spectra map to plausible sRGB output. We authored COLLADA scene content tuned for bubbles, gemstones, and dragon assets to stress-test grazing angles and complex geometry. The result is a spectral path tracer that produces angle- and wavelength-dependent color fringing consistent with thin-film physics, along with a portfolio of still renders across bubble-themed scenes.</p>
+			</div>
+		</section>
+
+		<section id="approach">
+			<h2>Technical approach</h2>
+
+			<div class="card">
+				<h3>Creating <code>ColorVector</code> (spectral light transport)</h3>
+				<p>Because the RGB path tracer from HW3 cannot simulate thin-film interference—iridescence depends on how individual wavelengths add and cancel—we introduced a <strong>color vector</strong> type to replace <code>Vector3D</code> for path throughput during transport.</p>
+				<p>The <code>ColorVector</code> class stores a discrete spectral representation of radiance: <strong>40 wavelength samples spanning 400–800&nbsp;nm</strong> in the report’s baseline description, with later engineering extending resolution for finer sampling where noted in individual contributions. Every stage of the path integral that previously assumed RGB was refactored so <code>pathtracer.cpp</code> threads spectra through bounces; we only collapse to three-channel RGB at <code>raytrace_pixel</code>, after integrating over the path.</p>
+			</div>
+
+			<div class="card">
+				<h3>Bouncing spectral throughput</h3>
+				<p>We modified the recursive path formulation and BSDF evaluation paths so that newly implemented <code>ColorVector</code> values propagate through each bounce: indirect illumination, environment sampling, and material response all multiply and accumulate in spectrum space. That invariant ensures thin-film modulation applied per wavelength remains consistent with global illumination rather than being “painted on” as a post-process.</p>
+			</div>
+
+			<div class="card">
+				<h3><code>ThinFilm</code> BSDF</h3>
+				<p>To capture iridescent reflection from a thin transparent layer (soap film, nano-coating, etc.), we implemented a <strong>thin-film BSDF</strong>. Important routines include <code>calculate_phase_shift()</code>, which quantifies the extra optical path as a refracted ray traverses the film, and <code>evaluate_interference()</code>, which combines reflected and transmitted field contributions per wavelength using Snell’s law at interfaces. This couples naturally to the spectral pipeline: the same incident direction can be strongly reflected at, say, 520&nbsp;nm while partially cancelling near 650&nbsp;nm, producing the characteristic rainbow-like swing with angle.</p>
+			</div>
+
+			<div class="card">
+				<h3>Scene authoring &amp; COLLADA</h3>
+				<p>We extended parsing so <code>.dae</code> assets can declare film thickness, indices of refraction, and assignment of the thin-film BSDF, letting artists place bubbles and coated solids without recompiling. Scene evolution moved from single bubbles in simple rooms to multi-bubble Cornell setups, gemstone bubbles, Lambertian spheres with thin films, and dragon models (<code>CBdragon_film</code> lineage), deliberately exercising grazing viewing directions where interference variation is strongest.</p>
+			</div>
+		</section>
+
+		<section id="evolution">
+			<h2>Pipeline &amp; design evolution</h2>
+			<p class="timeline-note">The following summarizes how the implementation diverged from “plain HW3 RGB” into a coherent spectral system—useful for readers comparing our milestone write-up to the final codebase.</p>
+
+			<div class="card">
+				<h3>Baseline</h3>
+				<p>We started from the Homework&nbsp;3 path tracer: Russian roulette, BSDF sampling, environment maps, and ray primitives were intact; the main change was replacing internal color algebra with spectrum-aware types.</p>
+			</div>
+
+			<div class="card">
+				<h3>Spectral representation</h3>
+				<p>We introduced spectrum helpers and migrated BSDF code—especially thin-film evaluation—toward <code>ColorVector</code> so wavelength-dependent effects integrate uniformly across materials rather than as special-case RGB hacks.</p>
+			</div>
+
+			<div class="card">
+				<h3>Thin-film BSDF (Airy interference)</h3>
+				<p>The <code>ThinFilmBSDF</code> realizes Airy-style thin-film terms, wired to <code>ColorVector</code> and to parameters supplied through Collada/XML. Logic in <code>bsdf.cpp</code> evolved as we aligned phase shifts, Fresnel terms, and path throughput.</p>
+			</div>
+
+			<div class="card">
+				<h3>Path throughput contract</h3>
+				<p>The tracer enforces a simple contract: spectra travel through all bounces; RGB appears only after the final pixel integral. That reduced bugs where a partial RGB conversion upstream desaturated interference patterns.</p>
+			</div>
+
+			<div class="card">
+				<h3>Sampling &amp; global illumination</h3>
+				<p><code>sample_f</code> and related BSDF sampling code were revised alongside path-tracing tweaks. Environment lighting was refactored so sampled environment directions feed the continuation ray directly—cleaner coupling between importance sampling the env map and the spectral throughput on the next vertex.</p>
+			</div>
+
+			<div class="card">
+				<h3>Color science at lights</h3>
+				<p><code>ColorVector</code> gained const-correctness and tuned wavelength metadata for emitters. Later work added CIE-oriented transforms and XYZ handling, spectrum initialization for lights, and integration fixes so emitted radiance matches the spectral pipeline.</p>
+			</div>
+
+			<div class="card">
+				<h3>Light interface refactor</h3>
+				<p>A larger pass trimmed <code>pathtracer.cpp</code>, introduced <code>light_info.h</code>, and funneled ambient, area, directional, point, and spot sources through a unified descriptor so spectral shading sees one coherent light record type.</p>
+			</div>
+
+			<div class="card">
+				<h3>Ongoing BSDF / spectral polish</h3>
+				<p>Subsequent edits continued to adjust <code>bsdf.cpp</code> and <code>color_vector.cpp</code>, tightening spectral-to-RGB conversions and thin-film edge cases rather than restructuring the whole renderer again.</p>
+			</div>
+
+			<div class="card">
+				<h3>DAE progression &amp; authoring intent</h3>
+				<p>The XML/Collada parser was updated to ingest thin-film BSDF parameters. Scene files accumulated bubble motifs: single bubble rooms; multi-bubble bunnies; gemstone bubble; dragon-with-film; Lambertian spheres with film; iterative tuning of <code>n_bubble_ball</code> / <code>n_bubble_bunny</code>. Commits explicitly set diffuse colors for cross-material consistency and occasionally zeroed a light color where reference matching demanded—that kind of scene discipline prevented “mystery brightness” when comparing against expectations.</p>
+			</div>
+		</section>
+
+		<section id="issues">
+			<h2>Issues encountered</h2>
+			<div class="card">
+				<p>As is well known in graphics, debugging Monte Carlo renderers is painful—we hit several bottlenecks.</p>
+				<ul>
+					<li><strong>Color spaces early on:</strong> We initially failed to route spectra through XYZ before RGB. Converting tabulated spectral power directly to RGB without an intermediate observer model produced bizarre hues; incorporating the xyz “human-visible” basis fixed the mismatch.</li>
+					<li><strong>Scene exposure:</strong> Some generated <code>.dae</code> files were extremely bright, producing washed-out early renders. We iterated on light intensities, materials, and camera tonality until reference frames were in a sensible dynamic range.</li>
+					<li><strong>General interference debugging:</strong> Subtle sign errors in optical path length or mixed RGB/spectrum code paths manifested as metallic-looking surfaces instead of thin-film-like highlights; systematic asserts around spectrum invariants and side-by-side wavelength plots helped isolate issues.</li>
+				</ul>
+			</div>
+		</section>
+
+		<section id="lessons">
+			<h2>Lessons learned</h2>
+			<div class="card">
+				<ul>
+					<li><strong>Physical intuition:</strong> We already knew iridescence existed; building it forced a precise picture of how partial waves recombine after reflecting from the top and bottom of a film—why bubbles flash cyan at one angle and magenta at another.</li>
+					<li><strong>BSDFs as modular optics:</strong> Thin-film behavior slots naturally into a BSDF interface alongside specular, diffuse, and refraction lobes; probability masses in sampling code are as important as the analytic BRDF value.</li>
+					<li><strong>XYZ is not optional for spectral renderers:</strong> Human color is defined through CIE color-matching functions. Skipping XYZ when integrating spectra into a display space yields “almost right” results that are still visibly wrong—particularly for narrowband interference peaks.</li>
+				</ul>
+			</div>
+		</section>
+
+		<section id="results">
+			<div class="results-bleed">
+			<div class="results-inner">
+			<h2>Results</h2>
+
+			<div class="card">
+				<h3>Showcase animation (course requirement)</h3>
+				<p>The course asks for a short clip, GIF, movie, or animation of final output. Below is our milestone progress video; replace or augment with a shorter looping GIF in <code>showcase/images/</code> if you publish a new cut for the final session.</p>
+				<div class="video-wrap">
+					<iframe src="https://www.youtube.com/embed/Jba5EJzPGOw" title="Iridescent path tracer — progress video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+				</div>
+				<div class="gif-placeholder">
+					<strong>GIF placeholder (from draft):</strong> add an <code>&lt;img&gt;</code> in this section pointing to your final-loop asset, e.g. <code>images/showcase_loop.gif</code>, for a lightweight autoplaying preview on the report page.
+				</div>
+			</div>
+
+			<div class="card">
+				<h3>Still renders (<code>showcase/images</code>)</h3>
+				<p>All images below are served from this report’s <code>showcase/images</code> folder—bubble studies plus iridescent dragon. <strong>Click any image</strong> to open the full-resolution PNG in a new tab.</p>
+				<div class="render-grid">
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_1.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_1.png" alt="Bubble render 1">
+						</a>
+						<figcaption>Bubble study 1</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_2.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_2.png" alt="Bubble render 2">
+						</a>
+						<figcaption>Bubble study 2</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_3.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_3.png" alt="Bubble render 3">
+						</a>
+						<figcaption>Bubble study 3</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_4.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_4.png" alt="Bubble render 4">
+						</a>
+						<figcaption>Bubble study 4</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_5.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_5.png" alt="Bubble render 5">
+						</a>
+						<figcaption>Bubble study 5</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_6.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_6.png" alt="Bubble render 6">
+						</a>
+						<figcaption>Bubble study 6</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_7.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_7.png" alt="Bubble render 7">
+						</a>
+						<figcaption>Bubble study 7</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_8.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_8.png" alt="Bubble render 8">
+						</a>
+						<figcaption>Bubble study 8</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_9.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_9.png" alt="Bubble render 9">
+						</a>
+						<figcaption>Bubble study 9</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_10.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_10.png" alt="Bubble render 10">
+						</a>
+						<figcaption>Bubble study 10</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/bubble_11.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/bubble_11.png" alt="Bubble render 11">
+						</a>
+						<figcaption>Bubble study 11</figcaption>
+					</figure>
+					<figure class="render-item">
+						<a class="render-item-link" href="images/dragon_iridescent2.png" target="_blank" rel="noopener noreferrer" title="Open full size">
+							<img src="images/dragon_iridescent2.png" alt="Dragon iridescent copy in showcase folder">
+						</a>
+						<figcaption>Dragon iridescent (showcase copy)</figcaption>
+					</figure>
+				</div>
+			</div>
+			</div>
+			</div>
+		</section>
+
+		<section id="references">
+			<h2>References</h2>
+			<div class="card">
+				<p>These references helped us reason about wavelength-dependent transport, thin-film phase, and bubble optics—both numerically and conceptually.</p>
+				<ul class="ref-list">
+					<li>Nigel Morris, <cite>Capturing the Reflectance Model of Soap Bubbles</cite> — primary motivation for spectrum → XYZ → RGB workflow and bubble reflectance behavior.</li>
+					<li>General references on wavelength-dependent reflectance and thin-film interference in rendering.</li>
+					<li><a href="https://jellyrenders.com/graphics/ray%20tracing/2025/11/17/simple-iridescent-material/">Jelly Renders — Simple iridescent material</a> (practical shader-level intuition).</li>
+					<li><a href="https://gamedev.net/tutorials/_/technical/graphics-programming-and-theory/thin-film-interference-for-computer-graphics-r2962/">GameDev.net — Thin-film interference for computer graphics</a>.</li>
+					<li><a href="https://cs184.eecs.berkeley.edu/sp26/hw/hw3/">CS184 Spring 2026 — Homework 3</a> (base path tracer).</li>
+				</ul>
+			</div>
+		</section>
+
+		<section id="contributions">
+			<h2>Contributions from each team member</h2>
+			<div class="card">
+				<ul class="contrib-list">
+					<li><strong>Crystal:</strong></li>
+					<li><strong>Kellen:</strong></li>
+					<li><strong>Isaac:</strong> conversion of the rendering pipeline from <code>Vector3D</code> (RGB) to <code>ColorVector</code> (97-wavelength spectrum).</li>
+					<li><strong>Sofia:</strong> development of COLLADA files (specifically items with BSDF that resembled bubbles).</li>
+				</ul>
+				<p style="margin: 0.75rem 0 0; font-size: 0.88rem; color: var(--muted);">Blank entries mirror the submitted draft; fill in Crystal’s and Kellen’s bullets before the final portfolio freeze.</p>
+			</div>
+		</section>
+	</div>
+</body>
+</html>

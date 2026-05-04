@@ -1,0 +1,32 @@
+Gif here
+Iridescent Pathtracer
+Group: Crystal LaMar, Kellen Galban, Isaac Jones, Sofia Valadez
+Abstract - A paragraph summary of the entire project.
+The goal of this project is to successfully model the way thin film iridescent objects look with our ray tracing algorithm. This algorithm is based off of Homework 3 and we modified the way rays bounce off objects, spectral color vector representation, and created a thin film BSDF for objects in scenes. 
+Technical approach
+Creating VectorClass
+As the RGB path tracer implemented in HW3 could not simulate thin-film interference because iridescence depends on how individual wavelengths interact, we created a Color Vector class to replace Vector3D.
+The Color Vector class allows for a spectral representation of light that stores 40 discrete wavelength samples from 400nm to 800nm. We refactored every function in pathracer.cpp to carry ColorVector through all bounces and collapsing to RGB only at raytrace_pixel.
+Bouncing Color Vector
+The next step was modifying the raytracing algorithms so that the newly implemented ColorVectors are used in bounces instead. 
+BSDF
+In order to simulate iridescent patterns from light reflecting off thin, transparent layers, we created a new ThinFilm BSDF to allow for thin transparent layers to reflect light. Some of the major functions include calculate_phase_shift() to find out how much the ray gets shifted forward upon entering the film, and a new evaluate_interference() function that accounts for each ray’s wavelength in accordance with Snell’s Law.
+Issues Encountered
+As is commonly known, debugging anything in computer graphics is notoriously difficult, so we encountered some major problems during this project.
+Early on in our implementation, we did not consider xyz color space when representing the spectrum of color in our vectors and caused major issues.
+Some of the .dae files generated for this project were too bright and led to many early renders looking extremely over-exposed. 
+Lessons Learned
+Though we were all familiar with iridescence, this project helped us understand how it actually happens; how rays of light interfere with each other when entering the thin layers of a bubble, creating unique patterns of color.  
+We learned a lot more about the power of BSDFs to represent different types of materials, including transparent ones! We can model complex refraction of light with the probability distributions baked into different types of BSDFs (e.g. thin film).
+We learned about the XYZ or “human-visible” color spectrum of light. It turns out that if you don’t account for it by going directly from spectrum values to RGB and skipping XYZ, colors come out looking all weird!
+Results
+
+References
+These references were very helpful with understanding how rays of light should behave in a bubble-like object. They described the necessary representation for wavelengths of light, how a rays’ trajectory changes when entering bubble-like objects, and also provided a better conceptual understanding of what exactly we were implementing.
+a paper about rendering reflectance of soap bubbles
+wavelength dependent reflectance functions
+Contributions from each team member
+Crystal: 
+Kellen: 
+Isaac: conversion of the rendering pipeline from Vector3D (RGB) to ColorVector (97-wavelength spectrum)
+Sofia: development of COLLADA files (specifically items with BSDF that resembled bubbles)

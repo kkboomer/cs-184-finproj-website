@@ -1,0 +1,16 @@
+5.2A Final Report Webpage (CS184)
+Your team will write a final report as a webpage that describes what work you did, goes over what you learned, and presents your final results. Please include your project name at the top of your report. You may re-use material from your proposal and milestone, updating them based on what you actually did and adding detail as necessary. The report should be about 2-3 pages long if printed. The basic structure of your report will likely include:
+
+Abstract
+A paragraph summary of the entire project.
+Technical approach
+A 1-2 page summary of your technical approach, techniques used, algorithms implemented, etc. (use references to papers or other resources for further detail). Highlight how your approach varied from the references used (did you implement a subset, or did you change or enhance anything), the unique decisions you made and why.
+A description of problems encountered and how you tackled them.
+A description of lessons learned.
+Results
+Your final images, animations, video of your system (whichever is relevant). You can include results that you think show off what you built but that you did not have time to go over on presentation day.
+References
+Contributions from each team member
+A clear description of the work contributed by each team member.
+Reminder: You must submit your final deliverables on a persistent website that you can choose to keep up after class if you wish to present this work in your portfolio.
+EDIT: Please include in your final deliverable a small clip, gif, movie, or animation of your team’s output for the final showcase.
